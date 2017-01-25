@@ -627,6 +627,10 @@ var/global
 	list/APCIndexToFlag
 	list/APCIndexToWireColor
 	list/APCWireColorToIndex
+	list/VendorWireColorToFlag = RandomVendorWires()  //see vending.dm line 1502+ -The-Grim-Sleeper
+	list/VendorIndexToFlag
+	list/VendorIndexToWireColor
+	list/VendorWireColorToIndex
 
 	global_jobban_cache = ""		// once jobban list is ready this is set to a giant string of all the jobban data. the new panel chops it up for use client side with javascript
 	global_jobban_cache_rev = 0 	// increments every time the ban panel is built so clients know if they have the latest
