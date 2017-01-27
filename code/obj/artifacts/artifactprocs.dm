@@ -237,7 +237,7 @@
 			BAT.process_charges(-1, user)
 			return 0
 			
-	if (istype(W,/obj/item/parts/robot_parts/P))
+	if (istype(W,/obj/item/parts/robot_parts))
 		var/obj/item/parts/robot_parts/THISPART = W
 		src.visible_message("[user.name] activates the [THISPART] and it reaches out to the artifact.</span>")
 		src.ArtifactStimulus("silitouch", 1)
