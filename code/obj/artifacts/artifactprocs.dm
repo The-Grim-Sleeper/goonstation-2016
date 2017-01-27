@@ -224,7 +224,7 @@
 		var/obj/item/zippo/ZIP = W
 		if (ZIP.lit)
 			src.ArtifactStimulus("heat", 400)
-			src.visible_message("[user.name] burns the artifact with [ZIP]!</span>")
+			src.visible_message("<span style=\"color:red\">[user.name] burns the artifact with [ZIP]!</span>")
 			return 0
 
 	if(istype(W,/obj/item/baton))
@@ -239,7 +239,7 @@
 			
 	if (istype(W,/obj/item/parts/robot_parts/P))
 		var/obj/item/parts/robot_parts/THISPART = W
-		src.visible_message("<span style=\"color:red\">[user.name] activates the [THISPART] and it reaches out to the artifact.</span>")
+		src.visible_message("[user.name] activates the [THISPART] and it reaches out to the artifact.</span>")
 		src.ArtifactStimulus("silitouch", 1)
 
 	if (W.force)
