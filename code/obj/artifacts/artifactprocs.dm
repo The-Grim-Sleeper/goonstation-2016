@@ -241,6 +241,7 @@
 		var/obj/item/parts/robot_parts/THISPART = W
 		src.visible_message("[user.name] activates the [THISPART] and it reaches out to the artifact.</span>")
 		src.ArtifactStimulus("silitouch", 1)
+		return 0
 
 	if (W.force)
 		src.ArtifactStimulus("force", W.force)
