@@ -965,6 +965,11 @@ PIPE BOMBS + CONSTRUCTION
 			visible_message("<span style=\"color:red\">[src] sparks and emits a small cloud of smoke, crumbling into a pile of dust.</span>")
 			qdel(src)
 
+/obj/item/pipebomb/bomb/timerBomb
+	name = "pipe bomb (timer)"
+	desc = "An improvised explosive made primarily out of two pipes and an egg timer."
+	icon_state = "Pipe_Timed"
+
 /obj/item/pipebomb/bomb/syndicate
 	name = "pipe bomb"
 	desc = "An improvised explosive made primarily out of two pipes." // cogwerks - changed the name
