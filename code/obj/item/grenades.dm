@@ -931,7 +931,7 @@ PIPE BOMBS + CONSTRUCTION
 			qdel(W)
 			qdel(src)
 
-		if(istype(W, /obj/item/assembly/rad_ignite) && state == 4)
+		if(istype(W, /obj/item/assembly/rad_ignite) && state == 4 && !( W.status ))
 			boutput(user, "<span style=\"color:blue\">You connect the cable to the radio/igniter assembly.</span>")
 			var/turf/T = get_turf(src)
 			var/obj/item/pipebomb/bomb/signallerBomb/A = new /obj/item/pipebomb/bomb/signallerBomb(T)
@@ -939,8 +939,10 @@ PIPE BOMBS + CONSTRUCTION
 			if (material)
 				A.setMaterial(src.material)
 				src.material = null
+			A.part1 = W
+			W.master = A
 			user.u_equip(W)
-			qdel(W)
+			W.set_loc(A)
 			qdel(src)
 
 		else
@@ -948,7 +950,7 @@ PIPE BOMBS + CONSTRUCTION
 			return
 
 /obj/item/pipebomb/bomb
-	name = "pipe bomb"
+	name = "pipe bomb (bug: contact coder)"
 	desc = "An improvised explosive made primarily out of two pipes."
 	icon_state = "Pipe_Timed"
 	var/strength = 5
@@ -988,6 +990,19 @@ PIPE BOMBS + CONSTRUCTION
 	name = "pipe bomb (remote signaller)"
 	desc = "An improvised explosive made primarily out of two pipes and a remote signalling device."
 	icon_state = "Pipe_Timed"
+	/obj/item/assembly/rad_ignite/part1 = null
+	
+	attack_self(mob/user as mob)
+		src.part1.attack_self(user)
+		src.add_fingerprint(user)
+		return
+	
+	receive_signal()
+		for(var/mob/O in hearers(1, src.loc))
+			O.show_message("[bicon(src)] *beep* *beep*", 3, "*beep* *beep*", 2)
+			spawn(10)
+				do_explode()
+		return
 
 /obj/item/pipebomb/bomb/syndicate
 	name = "pipe bomb"
