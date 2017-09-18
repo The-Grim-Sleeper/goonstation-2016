@@ -922,7 +922,7 @@ PIPE BOMBS + CONSTRUCTION
 		if(istype(W, /obj/item/assembly/time_ignite) && state == 4)
 			boutput(user, "<span style=\"color:blue\">You connect the cable to the timer/igniter assembly.</span>")
 			var/turf/T = get_turf(src)
-			var/obj/item/pipebomb/bomb/A = new /obj/item/pipebomb/bomb(T)
+			var/obj/item/pipebomb/bomb/timerBomb/A = new /obj/item/pipebomb/bomb/timerBomb(T)
 			A.strength = src.strength
 			if (material)
 				A.setMaterial(src.material)
@@ -930,6 +930,19 @@ PIPE BOMBS + CONSTRUCTION
 			user.u_equip(W)
 			qdel(W)
 			qdel(src)
+
+		if(istype(W, /obj/item/assembly/rad_ignite) && state == 4)
+			boutput(user, "<span style=\"color:blue\">You connect the cable to the radio/igniter assembly.</span>")
+			var/turf/T = get_turf(src)
+			var/obj/item/pipebomb/bomb/signallerBomb/A = new /obj/item/pipebomb/bomb/signallerBomb(T)
+			A.strength = src.strength
+			if (material)
+				A.setMaterial(src.material)
+				src.material = null
+			user.u_equip(W)
+			qdel(W)
+			qdel(src)
+
 		else
 			..()
 			return
@@ -968,6 +981,12 @@ PIPE BOMBS + CONSTRUCTION
 /obj/item/pipebomb/bomb/timerBomb
 	name = "pipe bomb (timer)"
 	desc = "An improvised explosive made primarily out of two pipes and an egg timer."
+	icon_state = "Pipe_Timed"
+
+
+/obj/item/pipebomb/bomb/signallerBomb
+	name = "pipe bomb (remote signaller)"
+	desc = "An improvised explosive made primarily out of two pipes and a remote signalling device."
 	icon_state = "Pipe_Timed"
 
 /obj/item/pipebomb/bomb/syndicate
