@@ -268,13 +268,23 @@ Contains:
 			boutput(user, "You attach the proximity/igniter assembly to the beaker.")
 		else boutput(user, "You must remove the beaker from the assembly before transferring chemicals to it!")
 		return
-	if((istype(W, /obj/item/pipebomb/bomb) && !( src.status )))
-		if(!src.part3 && !src.part4)
-			src.part4 = W
-			W.master = src
-			W.layer = initial(W.layer)
+	if((istype(W, /obj/item/pipebomb/frame) && !( src.status )))
+		var/obj/item/pipebomb/frame/F = W
+		if(!src.part3 && !src.part4 && F.state < 4)
+			boutput(user, "You have to add reagents and wires to the pipebomb before you can add an igniter.")
+			return
+		if(!src.part3 && !src.part4 && F.state == 4)
+			src.part4 = new /obj/item/pipebomb/bomb
+			src.part4.strength = F.strength
+			if (material)
+				src.part4.setMaterial(F.material)
+				F.material = null
 			user.u_equip(W)
-			W.set_loc(src)
+			qdel(W)
+			src.part4 = src.part4
+			src.part4.master = src
+			src.part4.layer = initial(src.part4.layer)
+			src.part4.set_loc(src)
 			src.c_state()
 			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
@@ -390,13 +400,23 @@ Contains:
 			boutput(user, "You attach the radio/igniter assembly to the beaker.")
 		else boutput(user, "You must remove the beaker from the assembly before transferring chemicals to it!")
 		return
-	if((istype(W, /obj/item/pipebomb/bomb) && !( src.status )))
-		if(!src.part3 && !src.part4)
-			src.part4 = W
-			W.master = src
-			W.layer = initial(W.layer)
+	if((istype(W, /obj/item/pipebomb/frame) && !( src.status )))
+		var/obj/item/pipebomb/frame/F = W
+		if(!src.part3 && !src.part4 && F.state < 4)
+			boutput(user, "You have to add reagents and wires to the pipebomb before you can add an igniter.")
+			return
+		if(!src.part3 && !src.part4 && F.state == 4)
+			src.part4 = new /obj/item/pipebomb/bomb
+			src.part4.strength = F.strength
+			if (material)
+				src.part4.setMaterial(F.material)
+				F.material = null
 			user.u_equip(W)
-			W.set_loc(src)
+			qdel(W)
+			src.part4 = src.part4
+			src.part4.master = src
+			src.part4.layer = initial(src.part4.layer)
+			src.part4.set_loc(src)
 			src.c_state()
 			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
