@@ -305,7 +305,8 @@ Contains:
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
 	if(src.part4)
-		src.part4.triggerNPop()
+		spawn(50)
+			src.part4.do_explode()
 	return
 
 /obj/item/assembly/prox_ignite/verb/removebeaker()
@@ -426,7 +427,8 @@ Contains:
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
 	if(src.part4)
-		src.part4.triggerNPop()
+		spawn(50)
+			src.part4.do_explode()
 	return
 
 /obj/item/assembly/rad_ignite/verb/removebeaker()
