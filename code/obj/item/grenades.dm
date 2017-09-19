@@ -997,12 +997,26 @@ PIPE BOMBS + CONSTRUCTION
 		src.add_fingerprint(user)
 		return
 	
-	receive_signal()
-		for(var/mob/O in hearers(1, src.loc))
-			O.show_message("[bicon(src)] *beep* *beep*", 3, "*beep* *beep*", 2)
-			spawn(10)
-				do_explode()
+/obj/item/pipebomb/bomb/signallerBomb/receive_signal()
+	for(var/mob/O in hearers(1, src.loc))
+		O.show_message("[bicon(src)] *beep* *beep*", 3, "*beep* *beep*", 2)
+		spawn(10)
+			src.do_explode()
 		return
+
+	proc/do_explode()
+		if (src.strength)
+			if (src.material)
+				var/strength_mult = 1
+				if (findtext(material.mat_id, "erebite"))
+					strength_mult = 2
+				else if (findtext(material.mat_id, "plasmastone"))
+					strength_mult = 1.25
+				src.strength *= strength_mult
+			src.blowthefuckup(src.strength)
+		else
+			visible_message("<span style=\"color:red\">[src] sparks and emits a small cloud of smoke, crumbling into a pile of dust.</span>")
+			qdel(src)
 
 /obj/item/pipebomb/bomb/syndicate
 	name = "pipe bomb"
