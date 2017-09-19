@@ -940,7 +940,6 @@ PIPE BOMBS + CONSTRUCTION
 	icon_state = "Pipe_Timed"
 	var/strength = 5
 	var/armed = 0
-	var/det_time = 50
 
 	attack_self(mob/user as mob)
 		if (armed)
@@ -949,10 +948,7 @@ PIPE BOMBS + CONSTRUCTION
 		armed = 1
 		message_admins("[key_name(user)] arms a pipe bomb (power [strength]) in [user.loc.loc], [showCoords(user.x, user.y, user.z)].")
 		logTheThing("combat", user, null, "arms a pipe bomb (power [strength]) in [user.loc.loc] ([showCoords(user.x, user.y, user.z)])")
-		triggerNPop()
-		
-	proc/triggerNPop()
-		spawn(det_time)
+		spawn(50)
 			do_explode()
 
 	proc/do_explode()
@@ -1028,4 +1024,3 @@ PIPE BOMBS + CONSTRUCTION
 
 	explosion_new(src, T, strength, 1)
 	src.gib()
-	
