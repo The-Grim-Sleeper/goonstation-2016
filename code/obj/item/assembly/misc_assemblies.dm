@@ -165,6 +165,7 @@ Contains:
 	var/obj/item/device/prox_sensor/part1 = null
 	var/obj/item/device/igniter/part2 = null
 	var/obj/item/reagent_containers/glass/beaker/part3 = null
+	var/obj/item/pipebomb/bomb/part4 = null
 	status = null
 	flags = FPRINT | TABLEPASS| CONDUCT | NOSPLASH
 
@@ -204,12 +205,19 @@ Contains:
 	..()
 
 /obj/item/assembly/prox_ignite/c_state(n)
-	if(!src.part3)
+	if(!src.part3 && !src.part4)
 		src.icon = 'icons/obj/assemblies.dmi'
 		src.icon_state = text("prox-igniter[n]")
 		src.overlays = null
 		src.underlays = null
 		src.name = "Proximity/Igniter Assembly"
+	if(!src.part3)
+		src.icon = part4.icon
+		src.icon_state = part4.icon_state
+		src.overlays = null
+		src.underlays = null
+		src.overlays += image('icons/obj/assemblies.dmi', "radignite_overlay", layer = FLOAT_LAYER)
+		src.name = "Proximity/Igniter/Pipebomb Assembly"
 	else
 		src.icon = part3.icon
 		src.icon_state = part3.icon_state
@@ -240,11 +248,16 @@ Contains:
 			src.part3.master = null
 			src.part3 = null
 
+		if (part4)
+			src.part4.set_loc(T)
+			src.part4.master = null
+			src.part4 = null
+
 		//SN src = null
 		qdel(src)
 		return
 	if((istype(W, /obj/item/reagent_containers/glass/beaker) && !( src.status )))
-		if(!src.part3)
+		if(!src.part3 && !src.part4)
 			src.part3 = W
 			W.master = src
 			W.layer = initial(W.layer)
@@ -254,6 +267,17 @@ Contains:
 
 			boutput(user, "You attach the proximity/igniter assembly to the beaker.")
 		else boutput(user, "You must remove the beaker from the assembly before transferring chemicals to it!")
+		return
+	if((istype(W, /obj/item/pipebomb/bomb) && !( src.status )))
+		if(!src.part3 && !src.part4)
+			src.part4 = W
+			W.master = src
+			W.layer = initial(W.layer)
+			user.u_equip(W)
+			W.set_loc(src)
+			src.c_state()
+			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
+		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 		return
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
@@ -280,6 +304,8 @@ Contains:
 	if(src.part3)
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
+	if(src.part4)
+		src.part4.triggerNPop()
 	return
 
 /obj/item/assembly/prox_ignite/verb/removebeaker()
@@ -307,6 +333,7 @@ Contains:
 	var/obj/item/device/radio/signaler/part1 = null
 	var/obj/item/device/igniter/part2 = null
 	var/obj/item/reagent_containers/glass/beaker/part3 = null
+	var/obj/item/pipebomb/bomb/part4 = null
 	status = null
 	flags = FPRINT | TABLEPASS| CONDUCT | NOSPLASH
 
@@ -338,17 +365,20 @@ Contains:
 		src.part1.set_loc(T)
 		src.part2.set_loc(T)
 		src.part3.set_loc(T)
+		src.part4.set_loc(T)
 		src.part1.master = null
 		src.part2.master = null
 		src.part3.master = null
+		src.part4.master = null
 		src.part1 = null
 		src.part2 = null
 		src.part3 = null
+		src.part4 = null
 		//SN src = null
 		qdel(src)
 		return
 	if((istype(W, /obj/item/reagent_containers/glass/beaker) && !( src.status )))
-		if(!src.part3)
+		if(!src.part3 && !src.part4)
 			src.part3 = W
 			W.master = src
 			W.layer = initial(W.layer)
@@ -359,7 +389,17 @@ Contains:
 			boutput(user, "You attach the radio/igniter assembly to the beaker.")
 		else boutput(user, "You must remove the beaker from the assembly before transferring chemicals to it!")
 		return
-
+	if((istype(W, /obj/item/pipebomb/bomb) && !( src.status )))
+		if(!src.part3 && !src.part4)
+			src.part4 = W
+			W.master = src
+			W.layer = initial(W.layer)
+			user.u_equip(W)
+			W.set_loc(src)
+			src.c_state()
+			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
+		else boutput(user, "You can't add more then one pipebomb to the assembly.")
+		return
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
 	src.status = !( src.status )
@@ -385,6 +425,8 @@ Contains:
 	if(src.part3)
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
+	if(src.part4)
+		src.part4.triggerNPop()
 	return
 
 /obj/item/assembly/rad_ignite/verb/removebeaker()
@@ -404,12 +446,19 @@ Contains:
 	else boutput(usr, "<span style=\"color:red\">That doesn't have a beaker attached to it!</span>")
 
 /obj/item/assembly/rad_ignite/c_state()
-	if(!src.part3)
+	if(!src.part3 && !src.part4)
 		src.icon = 'icons/obj/assemblies.dmi'
 		src.icon_state = text("radio-igniter")
 		src.overlays = null
 		src.underlays = null
 		src.name = "Radio/Igniter Assembly"
+	if(!src.part3)
+		src.icon = part4.icon
+		src.icon_state = part4.icon_state
+		src.overlays = null
+		src.underlays = null
+		src.overlays += image('icons/obj/assemblies.dmi', "radignite_overlay", layer = FLOAT_LAYER)
+		src.name = "Radio/Igniter/Pipebomb Assembly"
 	else
 		src.icon = part3.icon
 		src.icon_state = part3.icon_state
