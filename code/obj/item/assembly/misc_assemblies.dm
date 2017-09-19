@@ -333,7 +333,7 @@ Contains:
 		src.part3.attack_hand(usr)
 		src.part3 = null
 		src.c_state(src.part1.timing)
-		boutput(usr, "<span style=\"color:blue\">You remove the timer/igniter assembly from the beaker.</span>")
+		boutput(usr, "<span style=\"color:blue\">You remove the proximity/igniter assembly from the beaker.</span>")
 	else boutput(usr, "<span style=\"color:red\">That doesn't have a beaker attached to it!</span>")
 
 /////////////////////////////////////// Remote signaller/igniter //////////////////////////////////////
