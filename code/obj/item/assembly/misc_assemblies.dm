@@ -216,7 +216,7 @@ Contains:
 		src.icon_state = part4.icon_state
 		src.overlays = null
 		src.underlays = null
-		src.overlays += image('icons/obj/assemblies.dmi', "radignite_overlay", layer = FLOAT_LAYER)
+		src.overlays += image('icons/obj/assemblies.dmi', "proxignite_overlay[n]", layer = FLOAT_LAYER)
 		src.name = "Proximity/Igniter/Pipebomb Assembly"
 	else
 		src.icon = part3.icon
