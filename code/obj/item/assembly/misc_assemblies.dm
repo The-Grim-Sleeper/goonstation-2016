@@ -317,6 +317,7 @@ Contains:
 	if(src.part4)
 		spawn(50)
 			src.part4.do_explode()
+			qdel(src)
 	return
 
 /obj/item/assembly/prox_ignite/verb/removebeaker()
@@ -449,6 +450,7 @@ Contains:
 	if(src.part4)
 		spawn(50)
 			src.part4.do_explode()
+			qdel(src)
 	return
 
 /obj/item/assembly/rad_ignite/verb/removebeaker()
