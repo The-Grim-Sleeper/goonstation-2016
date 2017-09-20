@@ -149,10 +149,21 @@ Contains:
 			src.part4.set_loc(src)
 			src.c_state(0)
 			boutput(user, "You attach the pipebomb to the timer/igniter assembly.")
+			logTheThing("bombing", user, null, "made Timer/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+			message_admins("[key_name(user)] made a Timer/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 	if((istype(W, /obj/item/pipebomb/bomb)))
-		boutput(user, "That pipebomb already has a detonator.")
-		return
+		if(!src.part3 && !src.part4)
+			src.part4 = W
+			W.master = src
+			W.layer = initial(W.layer)
+			user.u_equip(W)
+			W.set_loc(src)
+			src.c_state(0)
+			boutput(user, "You attach the pipebomb to the timer/igniter assembly.")
+			logTheThing("bombing", user, null, "made Timer/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+			message_admins("[key_name(user)] made a Timer/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
 	src.status = !( src.status )
@@ -177,7 +188,7 @@ Contains:
 		src.overlays = null
 		src.underlays = null
 		src.overlays += image('icons/obj/assemblies.dmi', "timeignite_overlay[n]", layer = FLOAT_LAYER)
-		src.name = "Proximity/Igniter/Pipebomb Assembly"
+		src.name = "Timer/Igniter/Pipebomb Assembly"
 	else
 		src.icon = part3.icon
 		src.icon_state = part3.icon_state
@@ -338,11 +349,22 @@ Contains:
 			src.part4.set_loc(src)
 			src.c_state(0)
 			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
+			logTheThing("bombing", user, null, "made Proximity/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+			message_admins("[key_name(user)] made a Proximity/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 		return
 	if((istype(W, /obj/item/pipebomb/bomb)))
-		boutput(user, "That pipebomb already has a detonator.")
-		return
+		if(!src.part3 && !src.part4)
+			src.part4 = W
+			W.master = src
+			W.layer = initial(W.layer)
+			user.u_equip(W)
+			W.set_loc(src)
+			src.c_state(0)
+			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
+			logTheThing("bombing", user, null, "made Proximity/Igniter/Beaker Assembly at [showCoords(T.x, T.y, T.z)].")
+			message_admins("[key_name(user)] made a Proximity/Igniter/Beaker Assembly at [showCoords(T.x, T.y, T.z)].")
+		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
 	src.status = !( src.status )
@@ -431,18 +453,27 @@ Contains:
 		var/turf/T = src.loc
 		if (ismob(T))
 			T = T.loc
-		src.part1.set_loc(T)
-		src.part2.set_loc(T)
-		src.part3.set_loc(T)
-		src.part4.set_loc(T)
-		src.part1.master = null
-		src.part2.master = null
-		src.part3.master = null
-		src.part4.master = null
-		src.part1 = null
-		src.part2 = null
-		src.part3 = null
-		src.part4 = null
+			
+		if (part1)
+			src.part1.set_loc(T)
+			src.part1.master = null
+			src.part1 = null
+
+		if (part2)
+			src.part2.set_loc(T)
+			src.part2.master = null
+			src.part2 = null
+
+		if (part3)
+			src.part3.set_loc(T)
+			src.part3.master = null
+			src.part3 = null
+
+		if (part4)
+			src.part4.set_loc(T)
+			src.part4.master = null
+			src.part4 = null
+			
 		//SN src = null
 		qdel(src)
 		return
@@ -477,11 +508,22 @@ Contains:
 			src.part4.set_loc(src)
 			src.c_state()
 			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
+			logTheThing("bombing", user, null, "made Radio/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+			message_admins("[key_name(user)] made a Radio/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 		return
 	if((istype(W, /obj/item/pipebomb/bomb)))
-		boutput(user, "That pipebomb already has a detonator.")
-		return
+		if(!src.part3 && !src.part4)
+			src.part4 = W
+			W.master = src
+			W.layer = initial(W.layer)
+			user.u_equip(W)
+			W.set_loc(src)
+			src.c_state()
+			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
+			logTheThing("bombing", user, null, "made Radio/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+			message_admins("[key_name(user)] made a Radio/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
 	src.status = !( src.status )
