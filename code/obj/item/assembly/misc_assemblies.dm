@@ -147,7 +147,7 @@ Contains:
 			src.part4.master = src
 			src.part4.layer = initial(src.part4.layer)
 			src.part4.set_loc(src)
-			src.c_state()
+			src.c_state(0)
 			boutput(user, "You attach the pipebomb to the timer/igniter assembly.")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 	if((istype(W, /obj/item/pipebomb/bomb)))
@@ -336,7 +336,7 @@ Contains:
 			src.part4.master = src
 			src.part4.layer = initial(src.part4.layer)
 			src.part4.set_loc(src)
-			src.c_state()
+			src.c_state(0)
 			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 		return
