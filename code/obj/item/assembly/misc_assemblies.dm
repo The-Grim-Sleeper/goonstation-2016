@@ -3,8 +3,14 @@ Contains:
 
 - Assembly parent
 - Timer/igniter
+--Beaker Assembly
+--Pipebomb Assembly
 - Proximity/igniter
+--Beaker Assembly
+--Pipebomb Assembly
 - Remote signaller/igniter
+--Beaker Assembly
+--Pipebomb Assembly
 - Health analyzer/igniter
 - Remote signaller/bike horn
 - Remote signaller/timer
@@ -40,6 +46,7 @@ Contains:
 	var/obj/item/device/timer/part1 = null
 	var/obj/item/device/igniter/part2 = null
 	var/obj/item/reagent_containers/glass/beaker/part3 = null
+	var/obj/item/pipebomb/bomb/part4 = null
 	status = null
 	flags = FPRINT | TABLEPASS| CONDUCT | NOSPLASH
 
@@ -75,6 +82,13 @@ Contains:
 	if(src.part3)
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
+	if(src.part4)
+		playsound(src.loc, "sound/machines/click.ogg", 50, 1)
+		O.show_message("[bicon(src)] *Click* *beep* *beep*", 3, "*Click* *beep* *beep*", 2)
+		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
+		spawn(50)
+			src.part4.do_explode()
+			qdel(src)
 	return
 
 /obj/item/assembly/time_ignite/attackby(obj/item/W as obj, mob/user as mob)
@@ -94,12 +108,16 @@ Contains:
 			src.part3.set_loc(T)
 			src.part3.master = null
 			src.part3 = null
+		if (src.part4)
+			src.part4.set_loc(T)
+			src.part4.master = null
+			src.part4 = null
 
 		qdel(src)
 		return
 
 	if((istype(W, /obj/item/reagent_containers/glass/beaker) && !( src.status )))
-		if(!src.part3)
+		if(!src.part3 && !src.part4)
 			src.part3 = W
 			W.master = src
 			W.layer = initial(W.layer)
@@ -110,6 +128,27 @@ Contains:
 			boutput(user, "You attach the timer/igniter assembly to the beaker.")
 		else boutput(user, "You must remove the beaker from the assembly before transferring chemicals to it!")
 		return
+		
+	if((istype(W, /obj/item/pipebomb/frame) && !( src.status )))
+		var/obj/item/pipebomb/frame/F = W
+		if(!src.part3 && !src.part4 && F.state < 4)
+			boutput(user, "You have to add reagents and wires to the pipebomb before you can add an igniter.")
+			return
+		if(!src.part3 && !src.part4 && F.state == 4)
+			src.part4 = new /obj/item/pipebomb/bomb
+			src.part4.strength = F.strength
+			if (material)
+				src.part4.setMaterial(F.material)
+				F.material = null
+			user.u_equip(W)
+			qdel(W)
+			src.part4 = src.part4
+			src.part4.master = src
+			src.part4.layer = initial(src.part4.layer)
+			src.part4.set_loc(src)
+			src.c_state()
+			boutput(user, "You attach the pipebomb to the timer/igniter assembly.")
+		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
@@ -123,12 +162,19 @@ Contains:
 	return
 
 /obj/item/assembly/time_ignite/c_state(n)
-	if(!src.part3)
+	if(!src.part3 && !src.part4)
 		src.icon = 'icons/obj/assemblies.dmi'
 		src.icon_state = text("timer-igniter[n]")
 		src.overlays = null
 		src.underlays = null
 		src.name = "Timer/Igniter Assembly"
+	if(!src.part3)
+		src.icon = part4.icon
+		src.icon_state = part4.icon_state
+		src.overlays = null
+		src.underlays = null
+		src.overlays += image('icons/obj/assemblies.dmi', "timeignite_overlay[n]", layer = FLOAT_LAYER)
+		src.name = "Proximity/Igniter/Pipebomb Assembly"
 	else
 		src.icon = part3.icon
 		src.icon_state = part3.icon_state
@@ -315,6 +361,8 @@ Contains:
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
 	if(src.part4)
+		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
+		O.show_message("[bicon(src)] *Click* *beep* *beep*", 3, "*Click* *beep* *beep*", 2)
 		spawn(50)
 			src.part4.do_explode()
 			qdel(src)
@@ -333,7 +381,7 @@ Contains:
 		src.part3.attack_hand(usr)
 		src.part3 = null
 		src.c_state(src.part1.timing)
-		boutput(usr, "<span style=\"color:blue\">You remove the proximity/igniter assembly from the beaker.</span>")
+		boutput(usr, "<span style=\"color:blue\">You remove the Proximity/igniter assembly from the beaker.</span>")
 	else boutput(usr, "<span style=\"color:red\">That doesn't have a beaker attached to it!</span>")
 
 /////////////////////////////////////// Remote signaller/igniter //////////////////////////////////////
@@ -448,6 +496,8 @@ Contains:
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
 	if(src.part4)
+		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
+		O.show_message("[bicon(src)] *Click* *beep* *beep*", 3, "*Click* *beep* *beep*", 2)
 		spawn(50)
 			src.part4.do_explode()
 			qdel(src)
