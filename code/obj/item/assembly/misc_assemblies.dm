@@ -47,6 +47,7 @@ Contains:
 	var/obj/item/device/igniter/part2 = null
 	var/obj/item/reagent_containers/glass/beaker/part3 = null
 	var/obj/item/pipebomb/bomb/part4 = null
+	var/sound_pipebomb = 'sound/weapons/armbomb.ogg'
 	status = null
 	flags = FPRINT | TABLEPASS| CONDUCT | NOSPLASH
 
@@ -68,6 +69,8 @@ Contains:
 	part2 = null
 	qdel(part3)
 	part3 = null
+	qdel(part4)
+	part4 = null
 	..()
 
 /obj/item/assembly/time_ignite/attack_self(mob/user as mob)
@@ -83,8 +86,6 @@ Contains:
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
 	if(src.part4)
-		playsound(src.loc, "sound/machines/click.ogg", 50, 1)
-		O.show_message("[bicon(src)] *Click* *beep* *beep*", 3, "*Click* *beep* *beep*", 2)
 		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
 		spawn(50)
 			src.part4.do_explode()
@@ -149,7 +150,9 @@ Contains:
 			src.c_state()
 			boutput(user, "You attach the pipebomb to the timer/igniter assembly.")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
-
+	if((istype(W, /obj/item/pipebomb/bomb)))
+		boutput(user, "That pipebomb already has a detonator.")
+		return
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
 	src.status = !( src.status )
@@ -248,6 +251,8 @@ Contains:
 	part2 = null
 	qdel(part3)
 	part3 = null
+	qdel(part4)
+	part4 = null
 	..()
 
 /obj/item/assembly/prox_ignite/c_state(n)
@@ -335,6 +340,9 @@ Contains:
 			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 		return
+	if((istype(W, /obj/item/pipebomb/bomb)))
+		boutput(user, "That pipebomb already has a detonator.")
+		return
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
 	src.status = !( src.status )
@@ -362,7 +370,6 @@ Contains:
 		src.part3.reagents.temperature_reagents(4000, 400)
 	if(src.part4)
 		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
-		O.show_message("[bicon(src)] *Click* *beep* *beep*", 3, "*Click* *beep* *beep*", 2)
 		spawn(50)
 			src.part4.do_explode()
 			qdel(src)
@@ -414,6 +421,8 @@ Contains:
 	part2 = null
 	qdel(part3)
 	part3 = null
+	qdel(part4)
+	part4 = null
 	..()
 
 /obj/item/assembly/rad_ignite/attackby(obj/item/W as obj, mob/user as mob)
@@ -470,6 +479,9 @@ Contains:
 			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 		return
+	if((istype(W, /obj/item/pipebomb/bomb)))
+		boutput(user, "That pipebomb already has a detonator.")
+		return
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
 	src.status = !( src.status )
@@ -497,7 +509,6 @@ Contains:
 		src.part3.reagents.temperature_reagents(4000, 400)
 	if(src.part4)
 		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
-		O.show_message("[bicon(src)] *Click* *beep* *beep*", 3, "*Click* *beep* *beep*", 2)
 		spawn(50)
 			src.part4.do_explode()
 			qdel(src)
