@@ -520,7 +520,6 @@ Contains:
 			W.set_loc(src)
 			src.c_state()
 			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
-			var/turf/T = get_turf(src)
 			logTheThing("bombing", user, null, "made Radio/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
 			message_admins("[key_name(user)] made a Radio/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
