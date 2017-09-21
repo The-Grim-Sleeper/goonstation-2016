@@ -87,7 +87,7 @@ Contains:
 		src.part3.reagents.temperature_reagents(4000, 400)
 	if(src.part4)
 		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
-		spawn(10)
+		spawn(30)
 			src.part4.do_explode()
 			qdel(src)
 	return
@@ -392,7 +392,7 @@ Contains:
 		src.part3.reagents.temperature_reagents(4000, 400)
 	if(src.part4)
 		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
-		spawn(10)
+		spawn(30)
 			src.part4.do_explode()
 			qdel(src)
 	return
@@ -550,7 +550,7 @@ Contains:
 		src.part3.reagents.temperature_reagents(4000, 400)
 	if(src.part4)
 		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
-		spawn(10)
+		spawn(30)
 			src.part4.do_explode()
 			qdel(src)
 	return
