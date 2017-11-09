@@ -758,7 +758,7 @@ var/datum/action_controller/actions
 	var/obj/item/reagent_containers/drink 		//The reagent container that is being chugged
 	
 	var/chug_size = 10
-	var/spill_size = chug_size
+	var/spill_size = 10
 	var/force_delay = 0
 
 	New(var/Usr, var/Target, var/Drink)
@@ -800,7 +800,7 @@ var/datum/action_controller/actions
 
 	onEnd()
 		usr.show_text("End", "red")
-		user.visible_message("<span style=\"color:red\">[over_object] has stopped drinking from the [src].</span>")
+		usr.visible_message("<span style=\"color:red\">[over_object] has stopped drinking from the [src].</span>")
 		playsound(over_object.loc,"sound/misc/burp.ogg", rand(10,50), 1)
 		..()
 
