@@ -746,6 +746,63 @@ var/datum/action_controller/actions
 				for(var/mob/O in AIviewers(H))
 					O.show_message("<span style=\"color:red\"><B>[H] manages to remove the shackles!</B></span>", 1)
 				H.show_text("You successfully remove the shackles.", "blue")
+				
+/datum/action/bar/icon/do_chug
+	duration = 30
+	interrupt_flags = INTERRUPT_MOVE | INTERRUPT_ACT | INTERRUPT_STUNNED | INTERRUPT_ACTION
+	id = "chugging"
+	icon = 'icons/obj/items.dmi'
+	
+	var/mob/living/carbon/usr    				//The person doing the action
+	var/mob/living/carbon/over_object			//The target of the action
+	var/obj/item/reagent_containers/drink 		//The reagent container that is being chugged
+	
+	var/chug_size = 10
+	var/spill_size = chug_size
+	var/force_delay = 0
+
+	New(var/Usr, var/Target, var/Drink)
+		usr = Usr
+		over_object = Target
+		drink = Drink
+		icon_state = drink.icon_state
+		
+		if (usr != over_object)
+			force_delay = 5
+		..()
+
+	onStart()
+		if (!drink.reagents.total_volume)
+			boutput(usr, "<span style=\"color:red\">The [drink] is empty.</span>")
+			return
+		playsound(over_object.loc,"sound/items/drink.ogg", rand(10,50), 1)
+		drink.reagents.trans_to(usr, min(drink.reagents.total_volume, chug_size))
+		usr.show_text("Starting", "red")
+		..()
+
+	onUpdate()
+		..()
+		usr.show_text("Doing", "red")
+		if (get_dist(usr, src) > 1 || get_dist(usr, over_object) > 1)
+			interrupt(INTERRUPT_ALWAYS)
+		
+		if (!drink.reagents.total_volume)
+			boutput(usr, "<span style=\"color:red\">The [drink] is empty.</span>")
+			state = ACTIONSTATE_FINISH
+			return
+			
+		playsound(over_object.loc,"sound/items/drink.ogg", rand(10,50), 1)
+		drink.reagents.trans_to(over_object, min(drink.reagents.total_volume, chug_size))
+		
+		playsound(over_object.loc,"sound/effects/splash.ogg", rand(10,50), 1)
+		drink.reagents.reaction(over_object, TOUCH, spill_size)
+		over_object.take_oxygen_deprivation(spill_size)
+
+	onEnd()
+		usr.show_text("End", "red")
+		user.visible_message("<span style=\"color:red\">[over_object] has stopped drinking from the [src].</span>")
+		playsound(over_object.loc,"sound/misc/burp.ogg", rand(10,50), 1)
+		..()
 
 //CLASSES & OBJS
 
