@@ -786,7 +786,8 @@ var/datum/action_controller/actions
 		
 		playsound(over_object.loc,"sound/items/drink.ogg", rand(10,50), 1)
 		drink.reagents.trans_to(usr, min(drink.reagents.total_volume, chug_size))
-		owner.visible_message("<span style=\"color:blue\">[owner] tries chug from [drink]</span>")
+		drank_total = drank_total + chug_size
+		owner.visible_message("<span style=\"color:blue\">[owner] chugs from [drink]</span>")
 		
 
 	onUpdate()
