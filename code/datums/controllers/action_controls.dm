@@ -753,13 +753,14 @@ var/datum/action_controller/actions
 	id = "chugging"
 	icon = 'icons/obj/items.dmi'
 	
-	var/mob/living/carbon/usr    				//The person doing the action
+	var/mob/living/carbon/human/usr    			//The person doing the action
 	var/mob/living/carbon/over_object			//The target of the action
 	var/obj/item/reagent_containers/drink 		//The reagent container that is being chugged
 	
-	var/chug_size = 10
-	var/spill_size = 10
-	var/force_delay = 0
+	var/chug_size = 20
+	var/spill_size = 20
+	var/by_force_delay = 0
+	var/drank_total = 0
 
 	New(var/Usr, var/Target, var/Drink)
 		usr = Usr
@@ -767,41 +768,75 @@ var/datum/action_controller/actions
 		drink = Drink
 		icon_state = drink.icon_state
 		
-		if (usr != over_object)
-			force_delay = 5
 		..()
 
 	onStart()
-		if (!drink.reagents.total_volume)
-			boutput(usr, "<span style=\"color:red\">The [drink] is empty.</span>")
+		..()
+		state = ACTIONSTATE_INFINITE
+		
+		if (usr != over_object)
+			owner.visible_message("<span style=\"color:red\">[owner] tries to drown [over_object] with [drink]!</span>")
+			by_force_delay = 10
 			return
+			
+		if (!drink.reagents.total_volume)
+			boutput(usr, "<span style=\"color:red\">Oh, [drink] is empty.</span>")
+			state = ACTIONSTATE_FINISH
+			return
+		
 		playsound(over_object.loc,"sound/items/drink.ogg", rand(10,50), 1)
 		drink.reagents.trans_to(usr, min(drink.reagents.total_volume, chug_size))
-		usr.show_text("Starting", "red")
-		..()
+		owner.visible_message("<span style=\"color:blue\">[owner] tries chug from [drink]</span>")
+		
 
 	onUpdate()
 		..()
-		usr.show_text("Doing", "red")
-		if (get_dist(usr, src) > 1 || get_dist(usr, over_object) > 1)
+		
+		if (get_dist(owner, drink) > 1 || get_dist(drink, over_object) > 1)
+			owner.visible_message("<span style=\"color:blue\">Out of reach.</span>")
 			interrupt(INTERRUPT_ALWAYS)
+			return
+			
+		if (by_force_delay)
+			by_force_delay = by_force_delay -1
+			return
 		
 		if (!drink.reagents.total_volume)
-			boutput(usr, "<span style=\"color:red\">The [drink] is empty.</span>")
+			owner.visible_message(usr, "<span style=\"color:red\">Oh, [drink] is empty.</span>")
 			state = ACTIONSTATE_FINISH
+			return
+		
+		if (drank_total > 400)
+			drank_total = 0
+			state = ACTIONSTATE_FINISH
+			over_object.gib()
+			over_object = null
 			return
 			
 		playsound(over_object.loc,"sound/items/drink.ogg", rand(10,50), 1)
 		drink.reagents.trans_to(over_object, min(drink.reagents.total_volume, chug_size))
+		drank_total = drank_total + chug_size
 		
-		playsound(over_object.loc,"sound/effects/splash.ogg", rand(10,50), 1)
-		drink.reagents.reaction(over_object, TOUCH, spill_size)
+		playsound(over_object.loc,"sound/effects/splat.ogg", rand(10,50), 1)
+		drink.reagents.reaction(over_object, TOUCH, min(drink.reagents.total_volume, chug_size))
+		drink.reagents.remove_any(spill_size)
 		over_object.take_oxygen_deprivation(spill_size)
+		
+		if (usr != over_object)
+			owner.visible_message("<span style=\"color:blue\">[owner] drowns [over_object] with [drink], spilling the contents all over [over_object]!</span>")
+			return
+		
+		owner.visible_message("<span style=\"color:blue\">[owner] chugs from [drink], but it is too much, and the contents spill all over [owner]</span>")
+		
 
+	onInterrupt(var/flag)
+		owner.visible_message("<span style=\"color:blue\">[owner] was interrupted.</span>")
+		state = ACTIONSTATE_FINISH
+		
 	onEnd()
-		usr.show_text("End", "red")
-		usr.visible_message("<span style=\"color:red\">[over_object] has stopped drinking from the [src].</span>")
-		playsound(over_object.loc,"sound/misc/burp.ogg", rand(10,50), 1)
+		if (drank_total)
+			playsound(over_object.loc,"sound/misc/burp.ogg", rand(10,50), 1)
+			owner.visible_message("<span style=\"color:blue\">[over_object] has finished chugging from [drink]!</span>")
 		..()
 
 //CLASSES & OBJS
