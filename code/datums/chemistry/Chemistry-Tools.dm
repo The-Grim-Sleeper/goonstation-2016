@@ -59,7 +59,7 @@
 
 	MouseDrop(atom/over_object as obj)
 		// First filter out everything we don't want to refill or empty quickly.
-		if (!istype(over_object, /obj/item/reagent_containers/glass) && !istype(over_object, /obj/item/reagent_containers/food/drinks) && !istype(over_object, /obj/reagent_dispensers) && !istype(over_object, /obj/item/spraybottle) && !istype(over_object, /obj/machinery/plantpot) && !istype(over_object, /obj/mopbucket))
+		if (!istype(over_object, /obj/item/reagent_containers/glass) && !istype(over_object, /obj/item/reagent_containers/food/drinks) && !istype(over_object, /obj/reagent_dispensers) && !istype(over_object, /obj/item/spraybottle) && !istype(over_object, /obj/machinery/plantpot) && !istype(over_object, /obj/mopbucket) && !iscarbon(over_object) && !iscritter(over_object))
 			return ..()
 
 		if (!istype(src, /obj/item/reagent_containers/glass) && !istype(src, /obj/item/reagent_containers/food/drinks))
@@ -68,7 +68,11 @@
 		if (get_dist(usr, src) > 1 || get_dist(usr, over_object) > 1)
 			boutput(usr, "<span style=\"color:red\">That's too far!</span>")
 			return
-
+			
+		if (iscarbon(over_object) || iscritter(over_object))
+			actions.start(new/datum/action/bar/icon/do_chug(usr, over_object, src), usr)
+			return
+		
 		src.transfer_all_reagents(over_object, usr)
 
 /* ====================================================== */
