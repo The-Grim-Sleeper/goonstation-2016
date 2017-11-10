@@ -746,7 +746,7 @@ var/datum/action_controller/actions
 				for(var/mob/O in AIviewers(H))
 					O.show_message("<span style=\"color:red\"><B>[H] manages to remove the shackles!</B></span>", 1)
 				H.show_text("You successfully remove the shackles.", "blue")
-				
+							
 /datum/action/bar/icon/do_chug
 	duration = 81
 	interrupt_flags = INTERRUPT_MOVE | INTERRUPT_ACT | INTERRUPT_STUNNED | INTERRUPT_ACTION
@@ -817,7 +817,7 @@ var/datum/action_controller/actions
 				do_chug_drinking()
 				owner.visible_message("<span style=\"color:blue\">[owner] drowns [over_object] with [drink]!</span>")
 				logTheThing("combat", owner, over_object, " drowns %target% with [drink] [log_reagents(drink)] at [log_loc(owner)].")
-			if (by_force_delay == 16 || by_force_delay == 11 || by_force_delay == 6)
+			if (((by_force_delay - 1) % 5 )== 0 )
 				owner.visible_message("<span style=\"color:red\">[owner] tries to drown [over_object] with [drink]!</span>")
 			by_force_delay = by_force_delay -1
 			return
@@ -850,8 +850,9 @@ var/datum/action_controller/actions
 		
 	proc/do_chug_drinking()
 		playsound(over_object.loc,"sound/items/drink.ogg", rand(10,50), 1)
-		drink.reagents.trans_to(over_object, min(drink.reagents.total_volume, chug_size))
-		drank_total = drank_total + chug_size
+		var/chug_size_local = min(drink.reagents.total_volume, chug_size)
+		drink.reagents.trans_to(over_object, chug_size_local)
+		drank_total = drank_total + chug_size_local
 		
 		if (!over_object.reagents.is_full())
 			chug_size = default_chug_size
@@ -864,8 +865,8 @@ var/datum/action_controller/actions
 	proc/do_chug_spilling_choking()
 		playsound(over_object.loc,"sound/effects/splat.ogg", rand(10,50), 1)
 		
-		drink.reagents.reaction(over_object, TOUCH, min(drink.reagents.total_volume, chug_size))
-		drink.reagents.remove_any(spill_size)
+		drink.reagents.reaction(over_object, TOUCH, min(drink.reagents.total_volume, spill_size))
+		drink.reagents.remove_any(min(drink.reagents.total_volume, spill_size))
 		over_object.take_oxygen_deprivation(choke_damage)
 
 //CLASSES & OBJS
