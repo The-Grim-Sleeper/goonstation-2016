@@ -544,6 +544,20 @@
 	id = "leftfeet"
 	points = 1
 	isPositive = 0
+	
+/obj/trait/chuggernaut
+	name = "Chuggernaut! (-1)"
+	cleanName = "Chuggernaut!"
+	desc = "Three years in space-college may not have netted you a degree, but you gained the abilty to drink with less choking or spilling!"
+	id = "chuggernaut"
+	points = -1
+	isPositive = 1
+
+	onAdd(var/mob/owner)
+		if(owner.bioHolder)
+			owner.bioHolder.AddEffect("chuggernaut")
+		return
+
 /*
 /obj/trait/lizard
 	name = "Lizard (-1) \[Race\]"
