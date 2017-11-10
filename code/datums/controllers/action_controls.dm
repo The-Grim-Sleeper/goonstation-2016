@@ -748,7 +748,7 @@ var/datum/action_controller/actions
 				H.show_text("You successfully remove the shackles.", "blue")
 				
 /datum/action/bar/icon/do_chug
-	duration = 30
+	duration = 21
 	interrupt_flags = INTERRUPT_MOVE | INTERRUPT_ACT | INTERRUPT_STUNNED | INTERRUPT_ACTION
 	id = "chugging"
 	icon = 'icons/obj/items.dmi'
@@ -785,7 +785,7 @@ var/datum/action_controller/actions
 		if (usr != over_object)
 			owner.visible_message("<span style=\"color:red\">[owner] tries to drown [over_object] with [drink]!</span>")
 			logTheThing("combat", owner, over_object, "attempts to force %target% to chug from [drink] [log_reagents(drink)] at [log_loc(owner)].")
-			by_force_delay = 11
+			by_force_delay = 21
 			return
 			
 		if (!drink.reagents.total_volume)
@@ -814,10 +814,13 @@ var/datum/action_controller/actions
 			if (by_force_delay == 1)
 				do_chug_drinking()
 				owner.visible_message("<span style=\"color:blue\">[owner] drowns [over_object] with [drink]!</span>")
+				logTheThing("combat", owner, over_object, " drowns %target% with [drink] [log_reagents(drink)] at [log_loc(owner)].")
+			if (by_force_delay == 16 || by_force_delay == 11 || by_force_delay == 6)
+				owner.visible_message("<span style=\"color:red\">[owner] tries to drown [over_object] with [drink]!</span>")
 			by_force_delay = by_force_delay -1
 			return
 		
-		if (drank_total > 400)
+		if (drank_total > 400 && owner == over_object)
 			drank_total = 0
 			state = ACTIONSTATE_FINISH
 			over_object.gib()
