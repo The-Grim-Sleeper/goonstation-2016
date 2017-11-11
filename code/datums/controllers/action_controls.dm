@@ -746,7 +746,7 @@ var/datum/action_controller/actions
 				for(var/mob/O in AIviewers(H))
 					O.show_message("<span style=\"color:red\"><B>[H] manages to remove the shackles!</B></span>", 1)
 				H.show_text("You successfully remove the shackles.", "blue")
-							
+				
 /datum/action/bar/icon/do_chug
 	duration = 81
 	interrupt_flags = INTERRUPT_MOVE | INTERRUPT_ACT | INTERRUPT_STUNNED | INTERRUPT_ACTION
@@ -762,9 +762,9 @@ var/datum/action_controller/actions
 	var/spill_size = 20
 	var/choke_damage = 20
 	var/brute_damage = 10
-	var/by_force_delay = 0
+	var/delay = 0
 	var/drank_total = 0
-	var/mob/living/carbon/human/H 
+	var/cycle = 0
 
 	New(var/Usr, var/Target, var/Drink)
 		usr = Usr
@@ -772,7 +772,7 @@ var/datum/action_controller/actions
 		drink = Drink
 		icon_state = drink.icon_state
 		chug_size = default_chug_size
-		H = over_object
+		var/mob/living/carbon/human/H = over_object
 		if (H.traitHolder.hasTrait("chuggernaut"))
 			spill_size = spill_size / 2
 			choke_damage = choke_damage / 2
@@ -785,8 +785,10 @@ var/datum/action_controller/actions
 		if (usr != over_object)
 			owner.visible_message("<span style=\"color:red\">[owner] tries to drown [over_object] with [drink]!</span>")
 			logTheThing("combat", owner, over_object, "attempts to force %target% to chug from [drink] [log_reagents(drink)] at [log_loc(owner)].")
-			by_force_delay = 41
+			delay = 41
 			return
+		else 
+			delay = 1
 			
 		if (!drink.reagents.total_volume)
 			boutput(usr, "<span style=\"color:red\">Oh, [drink] is empty.</span>")
@@ -806,20 +808,20 @@ var/datum/action_controller/actions
 			owner.visible_message("<span style=\"color:blue\">Out of reach.</span>")
 			interrupt(INTERRUPT_ALWAYS)
 			return
-			
+		
 		if (!drink.reagents.total_volume)
 			owner.visible_message(usr, "<span style=\"color:red\">Oh, [drink] is empty.</span>")
 			state = ACTIONSTATE_FINISH
 			return
 			
-		if (by_force_delay)
-			if (by_force_delay == 1)
+		if (delay)
+			if (delay == 1 && owner != over_object)
 				do_chug_drinking()
 				owner.visible_message("<span style=\"color:blue\">[owner] drowns [over_object] with [drink]!</span>")
 				logTheThing("combat", owner, over_object, " drowns %target% with [drink] [log_reagents(drink)] at [log_loc(owner)].")
-			if (((by_force_delay - 1) % 5 )== 0 )
+			if (((delay - 1) % 5 )== 0 && owner != over_object)
 				owner.visible_message("<span style=\"color:red\">[owner] tries to drown [over_object] with [drink]!</span>")
-			by_force_delay = by_force_delay -1
+			delay = delay -1
 			return
 		
 		if (drank_total > 400 && owner == over_object)
@@ -830,13 +832,22 @@ var/datum/action_controller/actions
 			return
 			
 		do_chug_drinking()
-		do_chug_spilling_choking()
+		over_object.take_oxygen_deprivation(choke_damage)
 		
-		if (owner != over_object)
-			owner.visible_message("<span style=\"color:blue\">[owner] drowns [over_object] with [drink], spilling the contents all over [over_object]!</span>")
+		if (!drink.reagents.total_volume)
+			owner.visible_message(usr, "<span style=\"color:red\">Oh, [drink] is empty.</span>")
+			state = ACTIONSTATE_FINISH
 			return
-		owner.visible_message("<span style=\"color:blue\">[owner] chugs from [drink], but it is too much, and the contents spill all over [owner]</span>")
 		
+		do_chug_spilling()
+		
+
+		if ((cycle % 2) == 0)
+			if (owner != over_object)
+				owner.visible_message("<span style=\"color:blue\">[owner] drowns [over_object] with [drink], spilling the contents all over [over_object]!</span>")
+				return
+			else owner.visible_message("<span style=\"color:blue\">[owner] chugs from [drink], but it is too much, and the contents spill all over [owner]</span>")
+		cycle = cycle + 1
 
 	onInterrupt(var/flag)
 		owner.visible_message("<span style=\"color:blue\">[owner] was interrupted.</span>")
@@ -849,7 +860,8 @@ var/datum/action_controller/actions
 		..()
 		
 	proc/do_chug_drinking()
-		playsound(over_object.loc,"sound/items/drink.ogg", rand(10,50), 1)
+		if ((cycle % 2) == 0)
+			playsound(over_object.loc,"sound/items/drink.ogg", rand(10,50), 1)
 		var/chug_size_local = min(drink.reagents.total_volume, chug_size)
 		drink.reagents.trans_to(over_object, chug_size_local)
 		drank_total = drank_total + chug_size_local
@@ -862,12 +874,15 @@ var/datum/action_controller/actions
 			chug_size = default_chug_size / 2
 			random_brute_damage(over_object, brute_damage)
 	
-	proc/do_chug_spilling_choking()
-		playsound(over_object.loc,"sound/effects/splat.ogg", rand(10,50), 1)
+	proc/do_chug_spilling()
+		if ((cycle % 2) == 0)
+			playsound(over_object.loc,"sound/effects/splat.ogg", rand(10,50), 1)
+		var/spill_size_local = min(drink.reagents.total_volume, chug_size)
 		
-		drink.reagents.reaction(over_object, TOUCH, min(drink.reagents.total_volume, spill_size))
-		drink.reagents.remove_any(min(drink.reagents.total_volume, spill_size))
-		over_object.take_oxygen_deprivation(choke_damage)
+		drink.reagents.reaction(over_object, TOUCH, spill_size_local)
+		drink.reagents.remove_any(spill_size_local)
+		
+
 
 //CLASSES & OBJS
 
