@@ -46,7 +46,8 @@ Contains:
 	var/obj/item/device/timer/part1 = null
 	var/obj/item/device/igniter/part2 = null
 	var/obj/item/reagent_containers/glass/beaker/part3 = null
-	var/obj/item/pipebomb/bomb/part4 = null
+	var/obj/item/pipebomb/frame/part4 = null
+	var/obj/item/pipebomb/bomb/part5 = null
 	var/sound_pipebomb = 'sound/weapons/armbomb.ogg'
 	status = null
 	flags = FPRINT | TABLEPASS| CONDUCT | NOSPLASH
@@ -71,6 +72,8 @@ Contains:
 	part3 = null
 	qdel(part4)
 	part4 = null
+	qdel(part5)
+	part5 = null
 	..()
 
 /obj/item/assembly/time_ignite/attack_self(mob/user as mob)
@@ -85,10 +88,10 @@ Contains:
 	if(src.part3)
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
-	if(src.part4)
+	if(src.part5)
 		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
 		spawn(30)
-			src.part4.do_explode()
+			src.part5.do_explode()
 			qdel(src)
 	return
 
@@ -113,12 +116,18 @@ Contains:
 			src.part4.set_loc(T)
 			src.part4.master = null
 			src.part4 = null
-
+			src.part5.master = null
+			src.part5 = null
+		if (src.part5 && !src.part4)
+			src.part5.set_loc(T)
+			src.part5.master = null
+			src.part5 = null
+		user.u_equip(src)
 		qdel(src)
 		return
 
 	if((istype(W, /obj/item/reagent_containers/glass/beaker) && !( src.status )))
-		if(!src.part3 && !src.part4)
+		if(!src.part3 && !src.part5)
 			src.part3 = W
 			W.master = src
 			W.layer = initial(W.layer)
@@ -132,37 +141,41 @@ Contains:
 		
 	if((istype(W, /obj/item/pipebomb/frame) && !( src.status )))
 		var/obj/item/pipebomb/frame/F = W
-		if(!src.part3 && !src.part4 && F.state < 4)
+		if(!src.part3 && !src.part5 && F.state < 4)
 			boutput(user, "You have to add reagents and wires to the pipebomb before you can add an igniter.")
 			return
-		if(!src.part3 && !src.part4 && F.state == 4)
-			src.part4 = new /obj/item/pipebomb/bomb
-			src.part4.strength = F.strength
-			if (material)
-				src.part4.setMaterial(F.material)
-				F.material = null
+		if(!src.part3 && !src.part5 && F.state == 4)
+			src.part4 = F
+			F.master = src
+			F.layer = initial(F.layer)
+			user.u_equip(F)
+			F.set_loc(src)
+			
+			src.part5 = new /obj/item/pipebomb/bomb
+			src.part5.strength = F.strength
+			if (F.material)
+				src.part5.setMaterial(F.material)
 			user.u_equip(W)
-			qdel(W)
-			src.part4 = src.part4
-			src.part4.master = src
-			src.part4.layer = initial(src.part4.layer)
-			src.part4.set_loc(src)
+			src.part5 = src.part5
+			src.part5.master = src
+			src.part5.layer = initial(src.part5.layer)
+			src.part5.set_loc(src)
 			src.c_state(0)
 			boutput(user, "You attach the pipebomb to the timer/igniter assembly.")
-			logTheThing("bombing", user, null, "made Timer/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
-			message_admins("[key_name(user)] made a Timer/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+			logTheThing("bombing", user, null, "made Timer/Igniter/Pipebomb Assembly at [showCoords(src.x, src.y, src.z)].")
+			message_admins("[key_name(user)] made a Timer/Igniter/Pipebomb Assembly at [showCoords(src.x, src.y, src.z)].")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 	if((istype(W, /obj/item/pipebomb/bomb)))
-		if(!src.part3 && !src.part4)
-			src.part4 = W
+		if(!src.part3 && !src.part5)
+			src.part5 = W
 			W.master = src
 			W.layer = initial(W.layer)
 			user.u_equip(W)
 			W.set_loc(src)
 			src.c_state(0)
 			boutput(user, "You attach the pipebomb to the timer/igniter assembly.")
-			logTheThing("bombing", user, null, "made Timer/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
-			message_admins("[key_name(user)] made a Timer/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+			logTheThing("bombing", user, null, "made Timer/Igniter/Pipebomb Assembly at [showCoords(src.x, src.y, src.z)].")
+			message_admins("[key_name(user)] made a Timer/Igniter/Pipebomb Assembly at [showCoords(src.x, src.y, src.z)].")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
@@ -176,15 +189,15 @@ Contains:
 	return
 
 /obj/item/assembly/time_ignite/c_state(n)
-	if(!src.part3 && !src.part4)
+	if(!src.part3 && !src.part5)
 		src.icon = 'icons/obj/assemblies.dmi'
 		src.icon_state = text("timer-igniter[n]")
 		src.overlays = null
 		src.underlays = null
 		src.name = "Timer/Igniter Assembly"
-	if(!src.part3)
-		src.icon = part4.icon
-		src.icon_state = part4.icon_state
+	if(!src.part3) // <-- why no show for frame?
+		src.icon = part5.icon
+		src.icon_state = part5.icon_state
 		src.overlays = null
 		src.underlays = null
 		src.overlays += image('icons/obj/assemblies.dmi', "timeignite_overlay[n]", layer = FLOAT_LAYER)
@@ -225,7 +238,8 @@ Contains:
 	var/obj/item/device/prox_sensor/part1 = null
 	var/obj/item/device/igniter/part2 = null
 	var/obj/item/reagent_containers/glass/beaker/part3 = null
-	var/obj/item/pipebomb/bomb/part4 = null
+	var/obj/item/pipebomb/frame/part4 = null
+	var/obj/item/pipebomb/bomb/part5 = null
 	status = null
 	flags = FPRINT | TABLEPASS| CONDUCT | NOSPLASH
 
@@ -264,18 +278,20 @@ Contains:
 	part3 = null
 	qdel(part4)
 	part4 = null
+	qdel(part5)
+	part5 = null
 	..()
 
 /obj/item/assembly/prox_ignite/c_state(n)
-	if(!src.part3 && !src.part4)
+	if(!src.part3 && !src.part5)
 		src.icon = 'icons/obj/assemblies.dmi'
 		src.icon_state = text("prox-igniter[n]")
 		src.overlays = null
 		src.underlays = null
 		src.name = "Proximity/Igniter Assembly"
-	if(!src.part3)
-		src.icon = part4.icon
-		src.icon_state = part4.icon_state
+	if(!src.part3) // <-- why no show for frame?
+		src.icon = part5.icon
+		src.icon_state = part5.icon_state
 		src.overlays = null
 		src.underlays = null
 		src.overlays += image('icons/obj/assemblies.dmi', "proxignite_overlay[n]", layer = FLOAT_LAYER)
@@ -314,12 +330,21 @@ Contains:
 			src.part4.set_loc(T)
 			src.part4.master = null
 			src.part4 = null
+			src.part5.master = null
+			src.part5 = null
+			
+		if (part5 && !part4)
+			src.part5.set_loc(T)
+			src.part5.master = null
+			src.part5 = null
 
 		//SN src = null
+		user.u_equip(src)
 		qdel(src)
 		return
+	
 	if((istype(W, /obj/item/reagent_containers/glass/beaker) && !( src.status )))
-		if(!src.part3 && !src.part4)
+		if(!src.part3 && !src.part5)
 			src.part3 = W
 			W.master = src
 			W.layer = initial(W.layer)
@@ -332,38 +357,42 @@ Contains:
 		return
 	if((istype(W, /obj/item/pipebomb/frame) && !( src.status )))
 		var/obj/item/pipebomb/frame/F = W
-		if(!src.part3 && !src.part4 && F.state < 4)
+		if(!src.part3 && !src.part5 && F.state < 4)
 			boutput(user, "You have to add reagents and wires to the pipebomb before you can add an igniter.")
 			return
-		if(!src.part3 && !src.part4 && F.state == 4)
-			src.part4 = new /obj/item/pipebomb/bomb
-			src.part4.strength = F.strength
-			if (material)
-				src.part4.setMaterial(F.material)
-				F.material = null
+		if(!src.part3 && !src.part5 && F.state == 4)
+			src.part4 = F
+			F.master = src
+			F.layer = initial(F.layer)
+			user.u_equip(F)
+			F.set_loc(src)
+			
+			src.part5 = new /obj/item/pipebomb/bomb
+			src.part5.strength = F.strength
+			if (F.material)
+				src.part5.setMaterial(F.material)
 			user.u_equip(W)
-			qdel(W)
-			src.part4 = src.part4
-			src.part4.master = src
-			src.part4.layer = initial(src.part4.layer)
-			src.part4.set_loc(src)
+			src.part5 = src.part5
+			src.part5.master = src
+			src.part5.layer = initial(src.part5.layer)
+			src.part5.set_loc(src)
 			src.c_state(0)
-			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
-			logTheThing("bombing", user, null, "made Proximity/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
-			message_admins("[key_name(user)] made a Proximity/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+			boutput(user, "You attach the sensor/igniter assembly to the pipebomb.")
+			logTheThing("bombing", user, null, "made Proximity/Igniter/Pipebomb Assembly at [showCoords(src.x, src.y, src.z)].")
+			message_admins("[key_name(user)] made a Proximity/Igniter/Pipebomb Assembly at [showCoords(src.x, src.y, src.z)].")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 		return
 	if((istype(W, /obj/item/pipebomb/bomb)))
-		if(!src.part3 && !src.part4)
-			src.part4 = W
+		if(!src.part3 && !src.part5)
+			src.part5 = W
 			W.master = src
 			W.layer = initial(W.layer)
 			user.u_equip(W)
 			W.set_loc(src)
 			src.c_state(0)
-			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
-			logTheThing("bombing", user, null, "made Proximity/Igniter/Beaker Assembly at [showCoords(T.x, T.y, T.z)].")
-			message_admins("[key_name(user)] made a Proximity/Igniter/Beaker Assembly at [showCoords(T.x, T.y, T.z)].")
+			boutput(user, "You attach the sensor/igniter assembly to the pipebomb.")
+			logTheThing("bombing", user, null, "made Proximity/Igniter/Beaker Assembly at [showCoords(src.x, src.y, src.z)].")
+			message_admins("[key_name(user)] made a Proximity/Igniter/Beaker Assembly at [showCoords(src.x, src.y, src.z)].")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
@@ -390,10 +419,10 @@ Contains:
 	if(src.part3)
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
-	if(src.part4)
+	if(src.part5)
 		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
 		spawn(30)
-			src.part4.do_explode()
+			src.part5.do_explode()
 			qdel(src)
 	return
 
@@ -422,7 +451,8 @@ Contains:
 	var/obj/item/device/radio/signaler/part1 = null
 	var/obj/item/device/igniter/part2 = null
 	var/obj/item/reagent_containers/glass/beaker/part3 = null
-	var/obj/item/pipebomb/bomb/part4 = null
+	var/obj/item/pipebomb/frame/part4 = null
+	var/obj/item/pipebomb/bomb/part5 = null
 	status = null
 	flags = FPRINT | TABLEPASS| CONDUCT | NOSPLASH
 
@@ -445,6 +475,8 @@ Contains:
 	part3 = null
 	qdel(part4)
 	part4 = null
+	qdel(part5)
+	part5 = null
 	..()
 
 /obj/item/assembly/rad_ignite/attackby(obj/item/W as obj, mob/user as mob)
@@ -472,12 +504,21 @@ Contains:
 			src.part4.set_loc(T)
 			src.part4.master = null
 			src.part4 = null
+			src.part5.master = null
+			src.part5 = null
+			
+		if (part5 && !part4)
+			src.part5.set_loc(T)
+			src.part5.master = null
+			src.part5 = null
 			
 		//SN src = null
+		user.u_equip(src)
 		qdel(src)
 		return
+	
 	if((istype(W, /obj/item/reagent_containers/glass/beaker) && !( src.status )))
-		if(!src.part3 && !src.part4)
+		if(!src.part3 && !src.part5)
 			src.part3 = W
 			W.master = src
 			W.layer = initial(W.layer)
@@ -490,38 +531,42 @@ Contains:
 		return
 	if((istype(W, /obj/item/pipebomb/frame) && !( src.status )))
 		var/obj/item/pipebomb/frame/F = W
-		if(!src.part3 && !src.part4 && F.state < 4)
+		if(!src.part3 && !src.part5 && F.state < 4)
 			boutput(user, "You have to add reagents and wires to the pipebomb before you can add an igniter.")
 			return
-		if(!src.part3 && !src.part4 && F.state == 4)
-			src.part4 = new /obj/item/pipebomb/bomb
-			src.part4.strength = F.strength
-			if (material)
-				src.part4.setMaterial(F.material)
-				F.material = null
+		if(!src.part3 && !src.part5 && F.state == 4)
+			src.part4 = F
+			F.master = src
+			F.layer = initial(F.layer)
+			user.u_equip(F)
+			F.set_loc(src)
+			
+			src.part5 = new /obj/item/pipebomb/bomb
+			src.part5.strength = F.strength
+			if (F.material)
+				src.part5.setMaterial(F.material)
 			user.u_equip(W)
-			qdel(W)
-			src.part4 = src.part4
-			src.part4.master = src
-			src.part4.layer = initial(src.part4.layer)
-			src.part4.set_loc(src)
+			src.part5 = src.part5
+			src.part5.master = src
+			src.part5.layer = initial(src.part5.layer)
+			src.part5.set_loc(src)
 			src.c_state()
 			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
-			logTheThing("bombing", user, null, "made Radio/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
-			message_admins("[key_name(user)] made a Radio/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+			logTheThing("bombing", user, null, "made Radio/Igniter/Pipebomb Assembly at [showCoords(src.x, src.y, src.z)].")
+			message_admins("[key_name(user)] made a Radio/Igniter/Pipebomb Assembly at [showCoords(src.x, src.y, src.z)].")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 		return
 	if((istype(W, /obj/item/pipebomb/bomb)))
-		if(!src.part3 && !src.part4)
-			src.part4 = W
+		if(!src.part3 && !src.part5)
+			src.part5 = W
 			W.master = src
 			W.layer = initial(W.layer)
 			user.u_equip(W)
 			W.set_loc(src)
 			src.c_state()
 			boutput(user, "You attach the radio/igniter assembly to the pipebomb.")
-			logTheThing("bombing", user, null, "made Radio/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
-			message_admins("[key_name(user)] made a Radio/Igniter/Pipebomb Assembly at [showCoords(T.x, T.y, T.z)].")
+			logTheThing("bombing", user, null, "made Radio/Igniter/Pipebomb Assembly at [showCoords(src.x, src.y, src.z)].")
+			message_admins("[key_name(user)] made a Radio/Igniter/Pipebomb Assembly at [showCoords(src.x, src.y, src.z)].")
 		else boutput(user, "You can't add more then one pipebomb to the assembly.")
 	if (!( istype(W, /obj/item/screwdriver) ))
 		return
@@ -548,10 +593,10 @@ Contains:
 	if(src.part3)
 		src.part3.reagents.temperature_reagents(4000, 400)
 		src.part3.reagents.temperature_reagents(4000, 400)
-	if(src.part4)
+	if(src.part5)
 		playsound(src.loc, "sound/weapons/armbomb.ogg", 50, 0)
 		spawn(30)
-			src.part4.do_explode()
+			src.part5.do_explode()
 			qdel(src)
 	return
 
@@ -572,15 +617,15 @@ Contains:
 	else boutput(usr, "<span style=\"color:red\">That doesn't have a beaker attached to it!</span>")
 
 /obj/item/assembly/rad_ignite/c_state()
-	if(!src.part3 && !src.part4)
+	if(!src.part3 && !src.part5)
 		src.icon = 'icons/obj/assemblies.dmi'
 		src.icon_state = text("radio-igniter")
 		src.overlays = null
 		src.underlays = null
 		src.name = "Radio/Igniter Assembly"
 	if(!src.part3)
-		src.icon = part4.icon
-		src.icon_state = part4.icon_state
+		src.icon = part5.icon
+		src.icon_state = part5.icon_state
 		src.overlays = null
 		src.underlays = null
 		src.overlays += image('icons/obj/assemblies.dmi', "radignite_overlay", layer = FLOAT_LAYER)
@@ -629,7 +674,7 @@ Contains:
 		src.part2.master = null
 		src.part1 = null
 		src.part2 = null
-
+		user.u_equip(src)
 		qdel(src)
 		return
 	if (( istype(W, /obj/item/screwdriver) ))
@@ -718,6 +763,7 @@ obj/item/assembly/radio_horn/receive_signal()
 		src.part1 = null
 		src.part2 = null
 		//SN src = null
+		user.u_equip(src)
 		qdel(src)
 		return
 	if (!( istype(W, /obj/item/screwdriver) ))
@@ -787,6 +833,7 @@ obj/item/assembly/radio_horn/receive_signal()
 		src.part1 = null
 		src.part2 = null
 		//SN src = null
+		user.u_equip(src)
 		qdel(src)
 		return
 	if (!( istype(W, /obj/item/screwdriver) ))
