@@ -13,7 +13,7 @@
 	var/timing = 0.0
 	var/lockdownbyai = 0
 	anchored = 1.0
-	mats = 5
+	mats = 0
 
 /obj/machinery/partyalarm/attack_hand(mob/user as mob)
 	if(user.stat || stat & (NOPOWER|BROKEN))
